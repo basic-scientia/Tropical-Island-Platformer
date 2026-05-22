@@ -17,8 +17,21 @@ func _ready():
     lives_label.add_theme_color_override("font_color", Color(1, 1, 1))
     add_child(lives_label)
 
+    var win_label = Label.new()
+    win_label.name = "WinLabel"
+    win_label.text = ""
+    win_label.position = Vector2(440, 300)
+    win_label.add_theme_font_size_override("font_size", 48)
+    win_label.add_theme_color_override("font_color", Color(1, 0.9, 0.2))
+    win_label.visible = false
+    add_child(win_label)
+
 func update_score(s):
     $ScoreLabel.text = "Score: " + str(s)
 
 func update_lives(l):
     $LivesLabel.text = "Lives: " + str(l)
+
+func show_win():
+    $WinLabel.text = "YOU WIN!"
+    $WinLabel.visible = true
