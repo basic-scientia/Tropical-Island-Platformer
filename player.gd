@@ -35,13 +35,22 @@ func _physics_process(delta):
     else:
         velocity.x = move_toward(velocity.x, 0, SPEED)
 
-    if Input.is_action_just_pressed("jump"):
+    var just_pressed = Input.is_action_just_pressed("jump")
+    var held = Input.is_action_pressed("jump")
+
+    if just_pressed:
         if is_on_floor():
             velocity.y = JUMP_VELOCITY
             can_double_jump = true
         elif can_double_jump:
             velocity.y = JUMP_VELOCITY
             can_double_jump = false
+
+    if Input.is_action_just_released("jump") and velocity.y < 0:
+        velocity.y *= 0.35
+
+    if is_on_floor():
+        can_double_jump = true
 
     move_and_slide()
     queue_redraw()
