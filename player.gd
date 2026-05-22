@@ -1,14 +1,15 @@
 extends CharacterBody2D
 
 const SPEED = 300.0
-const JUMP_VELOCITY = -500.0
-const GRAVITY = 1400.0
+const JUMP_VELOCITY = -620.0
+const GRAVITY = 1200.0
 const SIZE = Vector2(24, 36)
 
 var lives = 3
 var score = 0
 var invincible = false
 var facing_right = true
+var can_double_jump = true
 
 signal lives_changed(new_lives)
 signal score_changed(new_score)
@@ -34,8 +35,13 @@ func _physics_process(delta):
     else:
         velocity.x = move_toward(velocity.x, 0, SPEED)
 
-    if Input.is_action_just_pressed("jump") and is_on_floor():
-        velocity.y = JUMP_VELOCITY
+    if Input.is_action_just_pressed("jump"):
+        if is_on_floor():
+            velocity.y = JUMP_VELOCITY
+            can_double_jump = true
+        elif can_double_jump:
+            velocity.y = JUMP_VELOCITY
+            can_double_jump = false
 
     move_and_slide()
     queue_redraw()

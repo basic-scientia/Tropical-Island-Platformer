@@ -116,20 +116,26 @@ func _create_platform(x, y, w, h = 20):
     return plat
 
 func _create_platforms():
-    _create_platform(200, 560, 150)
-    _create_platform(450, 480, 120)
-    _create_platform(700, 530, 180)
-    _create_platform(350, 380, 100)
-    _create_platform(600, 320, 140)
-    _create_platform(900, 420, 130)
+    _create_platform(250, 590, 140)
+    _create_platform(550, 560, 120)
+    _create_platform(150, 510, 100)
+    _create_platform(450, 440, 130)
+    _create_platform(750, 480, 140)
+    _create_platform(300, 370, 110)
+    _create_platform(600, 330, 130)
+    _create_platform(950, 400, 120)
+    _create_platform(150, 280, 90)
+    _create_platform(500, 240, 100)
+    _create_platform(800, 280, 110)
+    _create_platform(1050, 200, 100)
+    _create_platform(700, 150, 90)
     _create_platform(1100, 300, 120)
-    _create_platform(150, 280, 100)
-    _create_platform(1050, 180, 90)
+    _create_platform(120, 420, 100)
 
 func _create_player():
     player = CharacterBody2D.new()
     player.set_script(preload("res://player.gd"))
-    player.position = Vector2(100, 500)
+    player.position = Vector2(80, 500)
 
     var collision = CollisionShape2D.new()
     var shape = RectangleShape2D.new()
@@ -165,10 +171,10 @@ func _create_enemy_at(x, y):
     return enemy
 
 func _create_enemies():
-    _create_enemy_at(200, 540)
-    _create_enemy_at(700, 510)
-    _create_enemy_at(900, 400)
-    _create_enemy_at(1100, 280)
+    _create_enemy_at(250, 570)
+    _create_enemy_at(750, 460)
+    _create_enemy_at(950, 380)
+    _create_enemy_at(850, 260)
 
 func _create_fruit_at(x, y):
     var fruit = Area2D.new()
@@ -191,17 +197,20 @@ func _on_fruit_collected():
         player.score_changed.emit(player.score)
 
 func _create_fruits():
-    _create_fruit_at(200, 530)
-    _create_fruit_at(450, 450)
-    _create_fruit_at(700, 500)
-    _create_fruit_at(350, 350)
-    _create_fruit_at(600, 290)
-    _create_fruit_at(900, 390)
-    _create_fruit_at(1100, 270)
-    _create_fruit_at(150, 250)
-    _create_fruit_at(1050, 150)
-    _create_fruit_at(300, 550)
-    _create_fruit_at(800, 520)
+    _create_fruit_at(280, 560)
+    _create_fruit_at(580, 530)
+    _create_fruit_at(200, 480)
+    _create_fruit_at(500, 410)
+    _create_fruit_at(820, 450)
+    _create_fruit_at(350, 340)
+    _create_fruit_at(650, 300)
+    _create_fruit_at(1000, 370)
+    _create_fruit_at(200, 250)
+    _create_fruit_at(550, 210)
+    _create_fruit_at(850, 250)
+    _create_fruit_at(1100, 170)
+    _create_fruit_at(750, 120)
+    _create_fruit_at(170, 390)
 
 func _create_clouds():
     for i in 5:
