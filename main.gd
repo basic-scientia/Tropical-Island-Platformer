@@ -12,6 +12,8 @@ var goal = null
 var won = false
 var game_started = false
 var start_time = 0
+var continue_cost = 30
+var death_pos = Vector2()
 
 func _ready():
     _setup_inputs()
@@ -234,6 +236,7 @@ func _create_player():
     player.add_child(collision)
     player.lives_changed.connect(_on_player_lives_changed)
     player.score_changed.connect(_on_player_score_changed)
+    player.death_occurred.connect(_on_death_occurred)
     add_child(player)
 
 func _on_player_lives_changed(lives):
@@ -243,6 +246,76 @@ func _on_player_lives_changed(lives):
 func _on_player_score_changed(score):
     if hud:
         hud.update_score(score)
+
+func _on_death_occurred(lives_left, pos):
+    death_pos = pos
+    _show_death_screen()
+
+func _show_death_screen():
+    var overlay = CanvasLayer.new()
+    overlay.name = "DeathScreen"
+
+    var bg = ColorRect.new()
+    bg.color = Color(0, 0, 0, 0.65)
+    bg.size = Vector2(SCREEN_W, SCREEN_H)
+    bg.position = Vector2.ZERO
+    overlay.add_child(bg)
+
+    var msg = Label.new()
+    msg.text = "YOU DIED"
+    msg.position = Vector2(480, 220)
+    msg.add_theme_font_size_override("font_size", 44)
+    msg.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
+    overlay.add_child(msg)
+
+    var can_afford = player and player.score >= continue_cost
+
+    var continue_btn = Button.new()
+    continue_btn.text = "Continue here  (-" + str(continue_cost) + " pts)"
+    continue_btn.position = Vector2(440, 320)
+    continue_btn.size = Vector2(400, 55)
+    continue_btn.add_theme_font_size_override("font_size", 22)
+    continue_btn.disabled = not can_afford
+    continue_btn.pressed.connect(_on_death_continue)
+    overlay.add_child(continue_btn)
+
+    var restart_btn = Button.new()
+    restart_btn.text = "Return to start"
+    restart_btn.position = Vector2(440, 390)
+    restart_btn.size = Vector2(400, 55)
+    restart_btn.add_theme_font_size_override("font_size", 22)
+    restart_btn.pressed.connect(_on_death_restart)
+    overlay.add_child(restart_btn)
+
+    if not can_afford:
+        var sorry = Label.new()
+        sorry.text = "Not enough points to continue!"
+        sorry.position = Vector2(450, 300)
+        sorry.add_theme_font_size_override("font_size", 16)
+        sorry.add_theme_color_override("font_color", Color(1, 0.6, 0.6))
+        overlay.add_child(sorry)
+
+    add_child(overlay)
+
+func _on_death_continue():
+    if player and player.score >= continue_cost:
+        player.score -= continue_cost
+        continue_cost += 10
+        player.score_changed.emit(player.score)
+        player.respawn(death_pos)
+    var ds = get_node_or_null("DeathScreen")
+    if ds:
+        ds.queue_free()
+
+func _on_death_restart():
+    if player:
+        player.score = 0
+        continue_cost = 30
+        player.score_changed.emit(player.score)
+        player.respawn(Vector2(80, 580))
+    var ds = get_node_or_null("DeathScreen")
+    if ds:
+        ds.queue_free()
 
 func _create_camera():
     camera = Camera2D.new()

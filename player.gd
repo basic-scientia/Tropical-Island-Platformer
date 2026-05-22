@@ -10,9 +10,11 @@ var score = 0
 var invincible = false
 var facing_right = true
 var can_double_jump = true
+var frozen = false
 
 signal lives_changed(new_lives)
 signal score_changed(new_score)
+signal death_occurred(lives_left, death_position)
 
 func _ready():
     add_to_group("player")
@@ -25,6 +27,8 @@ func _draw():
     draw_circle(Vector2(4, -SIZE.y - 8), 2, Color(0, 0, 0))
 
 func _physics_process(delta):
+    if frozen:
+        return
     if not is_on_floor():
         velocity.y += GRAVITY * delta
 
@@ -36,8 +40,6 @@ func _physics_process(delta):
         velocity.x = move_toward(velocity.x, 0, SPEED)
 
     var just_pressed = Input.is_action_just_pressed("jump")
-    var held = Input.is_action_pressed("jump")
-
     if just_pressed:
         if is_on_floor():
             velocity.y = JUMP_VELOCITY
@@ -75,9 +77,17 @@ func take_damage():
     lives -= 1
     lives_changed.emit(lives)
     if lives <= 0:
+        frozen = true
         await get_tree().create_timer(0.5).timeout
         get_tree().reload_current_scene()
     else:
-        invincible = true
-        await get_tree().create_timer(2.0).timeout
-        invincible = false
+        death_occurred.emit(lives, global_position)
+        frozen = true
+
+func respawn(pos):
+    global_position = pos
+    velocity = Vector2.ZERO
+    invincible = true
+    frozen = false
+    await get_tree().create_timer(2.0).timeout
+    invincible = false
