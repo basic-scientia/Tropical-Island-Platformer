@@ -1,0 +1,21 @@
+# Godot exports
+export/
+exports/
+
+# Imported assets
+.import/
+
+# Godot user data
+*.godot.user
+*.godot.metadata
+.godot/
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
