@@ -17,77 +17,77 @@ signal score_changed(new_score)
 signal death_occurred(lives_left, death_position)
 
 func _ready():
-    add_to_group("player")
+	add_to_group("player")
 
 func _draw():
-    var c = Color(0.2, 0.6, 1.0) if not invincible else Color(1, 1, 1, 0.5)
-    draw_rect(Rect2(-SIZE.x/2, -SIZE.y, SIZE.x, SIZE.y), c)
-    draw_circle(Vector2(0, -SIZE.y - 6), 8, Color(1.0, 0.8, 0.6))
-    draw_circle(Vector2(-4, -SIZE.y - 8), 2, Color(0, 0, 0))
-    draw_circle(Vector2(4, -SIZE.y - 8), 2, Color(0, 0, 0))
+	var c = Color(0.2, 0.6, 1.0) if not invincible else Color(1, 1, 1, 0.5)
+	draw_rect(Rect2(-SIZE.x/2, -SIZE.y, SIZE.x, SIZE.y), c)
+	draw_circle(Vector2(0, -SIZE.y - 6), 8, Color(1.0, 0.8, 0.6))
+	draw_circle(Vector2(-4, -SIZE.y - 8), 2, Color(0, 0, 0))
+	draw_circle(Vector2(4, -SIZE.y - 8), 2, Color(0, 0, 0))
 
 func _physics_process(delta):
-    if frozen:
-        return
-    if not is_on_floor():
-        velocity.y += GRAVITY * delta
+	if frozen:
+		return
+	if not is_on_floor():
+		velocity.y += GRAVITY * delta
 
-    var direction = Input.get_axis("move_left", "move_right")
-    if direction:
-        velocity.x = direction * SPEED
-        facing_right = direction > 0
-    else:
-        velocity.x = move_toward(velocity.x, 0, SPEED)
+	var direction = Input.get_axis("move_left", "move_right")
+	if direction:
+		velocity.x = direction * SPEED
+		facing_right = direction > 0
+	else:
+		velocity.x = move_toward(velocity.x, 0, SPEED)
 
-    var just_pressed = Input.is_action_just_pressed("jump")
-    if just_pressed:
-        if is_on_floor():
-            velocity.y = JUMP_VELOCITY
-            can_double_jump = true
-        elif can_double_jump:
-            velocity.y = JUMP_VELOCITY
-            can_double_jump = false
+	var just_pressed = Input.is_action_just_pressed("jump")
+	if just_pressed:
+		if is_on_floor():
+			velocity.y = JUMP_VELOCITY
+			can_double_jump = true
+		elif can_double_jump:
+			velocity.y = JUMP_VELOCITY
+			can_double_jump = false
 
-    if Input.is_action_just_released("jump") and velocity.y < 0:
-        velocity.y *= 0.35
+	if Input.is_action_just_released("jump") and velocity.y < 0:
+		velocity.y *= 0.35
 
-    if is_on_floor():
-        can_double_jump = true
+	if is_on_floor():
+		can_double_jump = true
 
-    move_and_slide()
-    queue_redraw()
+	move_and_slide()
+	queue_redraw()
 
-    for i in get_slide_collision_count():
-        var col = get_slide_collision(i)
-        if col.get_collider().is_in_group("enemy"):
-            if col.get_normal().y < -0.3:
-                col.get_collider().die()
-                velocity.y = -350.0
-                score += 20
-                score_changed.emit(score)
-            elif not invincible:
-                take_damage()
+	for i in get_slide_collision_count():
+		var col = get_slide_collision(i)
+		if col.get_collider().is_in_group("enemy"):
+			if col.get_normal().y < -0.3:
+				col.get_collider().die()
+				velocity.y = -350.0
+				score += 20
+				score_changed.emit(score)
+			elif not invincible:
+				take_damage()
 
-    if global_position.y > 900:
-        take_damage()
+	if global_position.y > 900:
+		take_damage()
 
 func take_damage():
-    if invincible:
-        return
-    lives -= 1
-    lives_changed.emit(lives)
-    if lives <= 0:
-        frozen = true
-        await get_tree().create_timer(0.5).timeout
-        get_tree().reload_current_scene()
-    else:
-        death_occurred.emit(lives, global_position)
-        frozen = true
+	if invincible:
+		return
+	lives -= 1
+	lives_changed.emit(lives)
+	if lives <= 0:
+		frozen = true
+		await get_tree().create_timer(0.5).timeout
+		get_tree().reload_current_scene()
+	else:
+		death_occurred.emit(lives, global_position)
+		frozen = true
 
 func respawn(pos):
-    global_position = pos
-    velocity = Vector2.ZERO
-    invincible = true
-    frozen = false
-    await get_tree().create_timer(2.0).timeout
-    invincible = false
+	global_position = pos
+	velocity = Vector2.ZERO
+	invincible = true
+	frozen = false
+	await get_tree().create_timer(2.0).timeout
+	invincible = false

@@ -13,12 +13,14 @@ var goal = null
 var won = false
 var game_started = false
 var start_time = 0
-var continue_cost = 30
+var continue_cost = 50
 var death_pos = Vector2()
 var current_level = 0
 var level_objects = []
 
 var levels = [
+
+
 	{
 		"start": Vector2(80, 580),
 		"goal": Vector2(1700, 50),
@@ -257,7 +259,7 @@ func _on_start_pressed():
 	game_started = true
 	start_time = Time.get_ticks_msec()
 	current_level = 0
-	continue_cost = 30
+	continue_cost = 50
 	var start = get_node_or_null("StartScreen")
 	if start:
 		start.queue_free()
@@ -270,6 +272,7 @@ func _on_start_pressed():
 
 func _create_ground():
 	var ground = StaticBody2D.new()
+	ground.name = "Ground"
 	ground.position = Vector2(0, GROUND_Y)
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
@@ -397,7 +400,7 @@ func _show_death_screen():
 func _on_death_continue():
 	if player and player.score >= continue_cost:
 		player.score -= continue_cost
-		continue_cost += 10
+		continue_cost += 20
 		player.score_changed.emit(player.score)
 		player.respawn(death_pos)
 	var ds = get_node_or_null("DeathScreen")
@@ -405,14 +408,36 @@ func _on_death_continue():
 		ds.queue_free()
 
 func _on_death_restart():
+	_clear_level()
 	if player:
-		player.score = 0
-		continue_cost = 30
-		player.score_changed.emit(player.score)
-		player.respawn(Vector2(80, 580))
+		player.queue_free()
+		player = null
+	if camera:
+		camera.queue_free()
+		camera = null
+	if hud:
+		hud.queue_free()
+		hud = null
+	var ground = get_node_or_null("Ground")
+	if ground:
+		ground.queue_free()
+	var tc = get_node_or_null("TouchControls")
+	if tc:
+		tc.queue_free()
+	var clouds = get_tree().get_nodes_in_group("clouds")
+	for c in clouds:
+		c.queue_free()
+
+	game_started = false
+	won = false
+	continue_cost = 50
+
 	var ds = get_node_or_null("DeathScreen")
 	if ds:
 		ds.queue_free()
+
+	_create_start_screen()
+	_create_clouds()
 
 func _create_camera():
 	camera = Camera2D.new()
@@ -504,6 +529,7 @@ func _on_goal_body_entered(body):
 func _create_clouds():
 	for i in 20:
 		var cloud = Node2D.new()
+		cloud.add_to_group("clouds")
 		cloud.set_script(preload("res://cloud.gd"))
 		add_child(cloud)
 		cloud.position = Vector2(randi() % LEVEL_W, -(randi() % LEVEL_H))
@@ -514,4 +540,5 @@ func _create_hud():
 
 func _create_touch_controls():
 	var tc = preload("res://touch_controls.gd").new()
+	tc.name = "TouchControls"
 	add_child(tc)
