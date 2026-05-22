@@ -283,6 +283,8 @@ func _on_start_pressed():
 	_create_player()
 	_create_camera()
 	_build_level(0)
+	if camera and player:
+		camera.position = player.position
 	_create_hud()
 	_create_touch_controls()
 
