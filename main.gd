@@ -10,26 +10,23 @@ var hud = null
 var camera = null
 var goal = null
 var won = false
+var game_started = false
+var start_time = 0
 
 func _ready():
     _setup_inputs()
     _create_background()
-    _create_ground()
-    _create_platforms()
-    _create_player()
-    _create_camera()
-    _create_enemies()
-    _create_fruits()
-    _create_goal()
-    _create_hud()
+    _create_start_screen()
     _create_clouds()
-    _create_touch_controls()
 
 func _process(delta):
-    if player and camera:
+    if game_started and player and camera:
         var target = player.position
         target.x = SCREEN_W / 2
         camera.position = camera.position.lerp(target, 8.0 * delta)
+    if game_started and hud:
+        var elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
+        hud.update_time(elapsed)
 
 func _setup_inputs():
     if InputMap.has_action("move_left"):
@@ -77,6 +74,103 @@ func _create_background():
     sun.set_script(preload("res://sun.gd"))
     sun.z_index = -8
     add_child(sun)
+
+func _create_start_screen():
+    var overlay = CanvasLayer.new()
+    overlay.name = "StartScreen"
+
+    var bg = ColorRect.new()
+    bg.color = Color(0, 0, 0, 0.65)
+    bg.size = Vector2(SCREEN_W, SCREEN_H)
+    bg.position = Vector2.ZERO
+    overlay.add_child(bg)
+
+    var title = Label.new()
+    title.text = "TROPICAL ISLAND"
+    title.position = Vector2(340, 180)
+    title.add_theme_font_size_override("font_size", 52)
+    title.add_theme_color_override("font_color", Color(1, 0.9, 0.2))
+    overlay.add_child(title)
+
+    var sub = Label.new()
+    sub.text = "PLATFORMER"
+    sub.position = Vector2(495, 240)
+    sub.add_theme_font_size_override("font_size", 28)
+    sub.add_theme_color_override("font_color", Color(1, 1, 1))
+    overlay.add_child(sub)
+
+    var btn = Button.new()
+    btn.text = "START"
+    btn.position = Vector2(540, 340)
+    btn.size = Vector2(200, 60)
+    btn.add_theme_font_size_override("font_size", 30)
+    btn.pressed.connect(_on_start_pressed)
+    overlay.add_child(btn)
+
+    var controls = Label.new()
+    controls.text = "A/D - Move   SPACE/W - Jump   Double jump in air"
+    controls.position = Vector2(380, 430)
+    controls.add_theme_font_size_override("font_size", 14)
+    controls.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+    overlay.add_child(controls)
+
+    var scores_label = Label.new()
+    scores_label.name = "ScoresList"
+    scores_label.position = Vector2(430, 490)
+    scores_label.add_theme_font_size_override("font_size", 16)
+    scores_label.add_theme_color_override("font_color", Color(1, 0.9, 0.2))
+    overlay.add_child(scores_label)
+
+    add_child(overlay)
+    _display_high_scores()
+
+func _display_high_scores():
+    var list = _load_scores()
+    var label = $StartScreen/ScoresList
+    if list.is_empty():
+        label.text = ""
+    else:
+        var text = "HIGH SCORES:\n"
+        for i in range(min(list.size(), 5)):
+            text += "  " + str(i + 1) + ".  " + list[i] + "\n"
+        label.text = text
+
+func _load_scores():
+    var arr = []
+    var file = FileAccess.open("user://scores.dat", FileAccess.READ)
+    if file:
+        while not file.eof_reached():
+            var line = file.get_line().strip_edges()
+            if line != "":
+                arr.append(line)
+        file.close()
+    return arr
+
+func _save_score(score, time_str):
+    var entry = "Score: " + str(score) + "  Time: " + time_str
+    var existing = _load_scores()
+    existing.append(entry)
+    var file = FileAccess.open("user://scores.dat", FileAccess.WRITE)
+    if file:
+        for e in existing:
+            file.store_line(e)
+        file.close()
+
+func _on_start_pressed():
+    game_started = true
+    start_time = Time.get_ticks_msec()
+    var start = get_node_or_null("StartScreen")
+    if start:
+        start.queue_free()
+    _create_ground()
+    _create_platforms()
+    _create_player()
+    _create_camera()
+    _create_enemies()
+    _create_fruits()
+    _create_goal()
+    _create_hud()
+    _create_touch_controls()
 
 func _create_ground():
     var ground = StaticBody2D.new()
@@ -243,18 +337,20 @@ func _create_goal():
 func _on_goal_body_entered(body):
     if body == player and not won:
         won = true
+        var elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
+        var time_str = str(snapped(elapsed, 0.1)) + "s"
+        _save_score(player.score, time_str)
         if hud:
-            hud.show_win()
-        await get_tree().create_timer(3.0).timeout
+            hud.show_win(elapsed, player.score)
+        await get_tree().create_timer(4.0).timeout
         get_tree().reload_current_scene()
 
 func _create_clouds():
     for i in 12:
         var cloud = Node2D.new()
         cloud.set_script(preload("res://cloud.gd"))
-        var y_offset = -(i * 280)
         add_child(cloud)
-        cloud.position.y = y_offset
+        cloud.position.y = -(i * 280)
 
 func _create_hud():
     hud = preload("res://hud.gd").new()
