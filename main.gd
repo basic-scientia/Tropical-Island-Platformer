@@ -272,6 +272,7 @@ func _on_start_pressed():
 	var start = get_node_or_null("StartScreen")
 	if start:
 		start.visible = false
+		start.process_mode = PROCESS_MODE_DISABLED
 		start.queue_free()
 	_create_ground()
 	_create_player()
