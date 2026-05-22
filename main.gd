@@ -22,7 +22,7 @@ var levels = [
 
 
 	{
-		"start": Vector2(80, 580),
+		"start": Vector2(80, 633),
 		"goal": Vector2(700, 30),
 		"goal_label": "DONKEY",
 		"platforms": [
@@ -64,7 +64,7 @@ var levels = [
 		]
 	},
 	{
-		"start": Vector2(80, 580),
+		"start": Vector2(80, 633),
 		"goal": Vector2(2300, 30),
 		"goal_label": "META",
 		"platforms": [
@@ -96,7 +96,7 @@ var levels = [
 		]
 	},
 	{
-		"start": Vector2(80, 580),
+		"start": Vector2(80, 633),
 		"goal": Vector2(2800, 20),
 		"goal_label": "META",
 		"platforms": [
@@ -350,7 +350,7 @@ func _clear_level():
 func _create_player():
 	player = CharacterBody2D.new()
 	player.set_script(preload("res://player.gd"))
-	player.position = Vector2(80, 580)
+	player.position = Vector2(80, 633)
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
 	shape.size = Vector2(20, 34)
