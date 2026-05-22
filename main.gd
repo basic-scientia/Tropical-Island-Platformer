@@ -3,6 +3,7 @@ extends Node2D
 const SCREEN_W = 1280
 const SCREEN_H = 720
 const GROUND_Y = 650
+const GROUND_H = 80
 const LEVEL_W = 4000
 const LEVEL_H = 4000
 
@@ -22,7 +23,7 @@ var levels = [
 
 
 	{
-		"start": Vector2(80, 633),
+		"start": Vector2(80, 628),
 		"goal": Vector2(800, 80),
 		"goal_label": "META",
 		"platforms": [
@@ -57,7 +58,7 @@ var levels = [
 		]
 	},
 	{
-		"start": Vector2(80, 633),
+		"start": Vector2(80, 628),
 		"goal": Vector2(2300, 30),
 		"goal_label": "META",
 		"platforms": [
@@ -89,7 +90,7 @@ var levels = [
 		]
 	},
 	{
-		"start": Vector2(80, 633),
+		"start": Vector2(80, 628),
 		"goal": Vector2(2800, 20),
 		"goal_label": "META",
 		"platforms": [
@@ -275,6 +276,7 @@ func _on_start_pressed():
 		start.process_mode = PROCESS_MODE_DISABLED
 		start.queue_free()
 	_create_ground()
+	_create_wall()
 	_create_player()
 	_create_camera()
 	_build_level(0)
@@ -286,18 +288,36 @@ func _on_start_pressed():
 func _create_ground():
 	var ground = StaticBody2D.new()
 	ground.name = "Ground"
+	ground.position = Vector2(0, GROUND_Y)
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
-	shape.size = Vector2(700, 40)
+	shape.size = Vector2(LEVEL_W, GROUND_H)
 	collision.shape = shape
-	collision.position = Vector2(350, 20)
+	collision.position = Vector2(LEVEL_W / 2, GROUND_H / 2)
 	ground.add_child(collision)
 	var sand = ColorRect.new()
 	sand.color = Color(0.76, 0.60, 0.42)
-	sand.size = Vector2(700, 40)
+	sand.size = Vector2(LEVEL_W, GROUND_H)
 	sand.position = Vector2(0, 0)
 	ground.add_child(sand)
+	var grass = ColorRect.new()
+	grass.color = Color(0.2, 0.7, 0.2)
+	grass.size = Vector2(LEVEL_W, 6)
+	grass.position = Vector2(0, -6)
+	ground.add_child(grass)
 	add_child(ground)
+
+func _create_wall():
+	var wall = StaticBody2D.new()
+	wall.name = "Wall"
+	wall.position = Vector2(LEVEL_W, GROUND_Y)
+	var collision = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(20, GROUND_H + 200)
+	collision.shape = shape
+	collision.position = Vector2(0, (GROUND_H + 200) / 2)
+	wall.add_child(collision)
+	add_child(wall)
 
 func _create_platform(x, y, w, h):
 	var plat = StaticBody2D.new()
@@ -347,7 +367,7 @@ func _clear_level():
 func _create_player():
 	player = CharacterBody2D.new()
 	player.set_script(preload("res://player.gd"))
-	player.position = Vector2(80, 633)
+	player.position = Vector2(80, 628)
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
 	shape.size = Vector2(20, 34)
@@ -433,6 +453,9 @@ func _on_death_restart():
 	var ground = get_node_or_null("Ground")
 	if ground:
 		ground.queue_free()
+	var wall = get_node_or_null("Wall")
+	if wall:
+		wall.queue_free()
 	var tc = get_node_or_null("TouchControls")
 	if tc:
 		tc.queue_free()
@@ -453,8 +476,6 @@ func _on_death_restart():
 
 func _create_camera():
 	camera = Camera2D.new()
-	camera.position_smoothing_enabled = true
-	camera.position_smoothing_speed = 5.0
 	camera.limit_left = -200
 	camera.limit_right = LEVEL_W + 200
 	camera.limit_top = -200
