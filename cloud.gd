@@ -2,11 +2,9 @@ extends Node2D
 
 var speed = 10.0
 var base_y = 0
-var screen_w = 1280
 
 func _ready():
     speed = 5.0 + randi() % 15
-    position.x = randi() % screen_w
     base_y = position.y
 
 func _draw():
@@ -18,6 +16,6 @@ func _draw():
 
 func _process(delta):
     position.x += speed * delta
-    if position.x > screen_w + 80:
-        position.x = -80
+    if position.x > 3200:
+        position.x = -100
         position.y = base_y + randi() % 60 - 30

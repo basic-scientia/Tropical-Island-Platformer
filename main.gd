@@ -3,6 +3,7 @@ extends Node2D
 const SCREEN_W = 1280
 const SCREEN_H = 720
 const GROUND_Y = 650
+const LEVEL_W = 3000
 const LEVEL_H = 3500
 
 var player = null
@@ -23,9 +24,7 @@ func _ready():
 
 func _process(delta):
     if game_started and player and camera:
-        var target = player.position
-        target.x = SCREEN_W / 2
-        camera.position = camera.position.lerp(target, 8.0 * delta)
+        camera.position = camera.position.lerp(player.position, 8.0 * delta)
     if game_started and hud:
         var elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
         hud.update_time(elapsed)
@@ -61,14 +60,14 @@ func _setup_inputs():
 func _create_background():
     var sky = ColorRect.new()
     sky.color = Color(0.53, 0.81, 0.98)
-    sky.size = Vector2(SCREEN_W, LEVEL_H + 400)
-    sky.position = Vector2(0, -200)
+    sky.size = Vector2(LEVEL_W + 400, LEVEL_H + 400)
+    sky.position = Vector2(-200, -200)
     sky.z_index = -10
     add_child(sky)
     var sea = ColorRect.new()
     sea.color = Color(0.1, 0.5, 0.7)
-    sea.size = Vector2(SCREEN_W, 100)
-    sea.position = Vector2(0, GROUND_Y + 40)
+    sea.size = Vector2(LEVEL_W + 400, 100)
+    sea.position = Vector2(-200, GROUND_Y + 40)
     sea.z_index = -9
     add_child(sea)
     var sun = Node2D.new()
@@ -179,13 +178,13 @@ func _create_ground():
     ground.position = Vector2(0, GROUND_Y)
     var collision = CollisionShape2D.new()
     var shape = RectangleShape2D.new()
-    shape.size = Vector2(SCREEN_W * 2, 40)
+    shape.size = Vector2(LEVEL_W + 400, 40)
     collision.shape = shape
-    collision.position = Vector2(SCREEN_W / 2, 20)
+    collision.position = Vector2((LEVEL_W + 400) / 2, 20)
     ground.add_child(collision)
     var sand = ColorRect.new()
     sand.color = Color(0.76, 0.60, 0.42)
-    sand.size = Vector2(SCREEN_W, 40)
+    sand.size = Vector2(LEVEL_W + 400, 40)
     sand.position = Vector2(0, 0)
     ground.add_child(sand)
     add_child(ground)
@@ -211,19 +210,27 @@ func _create_platform(x, y, w, h = 20):
     add_child(plat)
 
 func _create_platforms():
-    _create_platform(200, 590, 130)
-    _create_platform(420, 540, 120)
-    _create_platform(620, 490, 130)
-    _create_platform(350, 440, 120)
-    _create_platform(570, 390, 140)
-    _create_platform(300, 340, 110)
-    _create_platform(620, 290, 130)
-    _create_platform(400, 250, 110)
-    _create_platform(650, 210, 130)
-    _create_platform(350, 160, 120)
-    _create_platform(580, 110, 130)
-    _create_platform(300, 70, 100)
-    _create_platform(520, 40, 100)
+    _create_platform(150, 590, 140)
+    _create_platform(400, 540, 130)
+    _create_platform(650, 570, 130)
+    _create_platform(250, 490, 110)
+    _create_platform(550, 440, 140)
+    _create_platform(850, 490, 130)
+    _create_platform(400, 380, 120)
+    _create_platform(700, 350, 140)
+    _create_platform(1050, 410, 130)
+    _create_platform(550, 290, 120)
+    _create_platform(900, 280, 140)
+    _create_platform(1250, 330, 120)
+    _create_platform(700, 220, 110)
+    _create_platform(1050, 200, 130)
+    _create_platform(1400, 250, 120)
+    _create_platform(850, 140, 110)
+    _create_platform(1150, 110, 130)
+    _create_platform(1500, 160, 120)
+    _create_platform(1000, 60, 120)
+    _create_platform(1300, 40, 110)
+    _create_platform(1600, 70, 100)
 
 func _create_player():
     player = CharacterBody2D.new()
@@ -321,9 +328,9 @@ func _create_camera():
     camera = Camera2D.new()
     camera.position_smoothing_enabled = true
     camera.position_smoothing_speed = 5.0
-    camera.limit_left = 0
-    camera.limit_right = SCREEN_W
-    camera.limit_top = -100
+    camera.limit_left = -200
+    camera.limit_right = LEVEL_W + 200
+    camera.limit_top = -200
     camera.limit_bottom = LEVEL_H
     add_child(camera)
     camera.make_current()
@@ -341,11 +348,16 @@ func _create_enemy_at(x, y):
 
 func _create_enemies():
     _create_enemy_at(250, 570)
-    _create_enemy_at(620, 470)
-    _create_enemy_at(570, 370)
-    _create_enemy_at(620, 270)
-    _create_enemy_at(400, 230)
-    _create_enemy_at(650, 190)
+    _create_enemy_at(650, 550)
+    _create_enemy_at(550, 420)
+    _create_enemy_at(850, 470)
+    _create_enemy_at(700, 330)
+    _create_enemy_at(1050, 390)
+    _create_enemy_at(900, 260)
+    _create_enemy_at(1250, 310)
+    _create_enemy_at(1050, 180)
+    _create_enemy_at(1400, 230)
+    _create_enemy_at(1150, 90)
 
 func _create_fruit_at(x, y):
     var fruit = Area2D.new()
@@ -365,23 +377,30 @@ func _on_fruit_collected():
         player.score_changed.emit(player.score)
 
 func _create_fruits():
-    _create_fruit_at(250, 560)
-    _create_fruit_at(470, 510)
-    _create_fruit_at(680, 460)
-    _create_fruit_at(400, 410)
-    _create_fruit_at(620, 360)
-    _create_fruit_at(350, 310)
-    _create_fruit_at(680, 260)
-    _create_fruit_at(450, 220)
-    _create_fruit_at(700, 180)
-    _create_fruit_at(400, 130)
-    _create_fruit_at(630, 80)
-    _create_fruit_at(350, 40)
-    _create_fruit_at(570, 10)
+    _create_fruit_at(200, 560)
+    _create_fruit_at(450, 510)
+    _create_fruit_at(700, 540)
+    _create_fruit_at(300, 460)
+    _create_fruit_at(600, 410)
+    _create_fruit_at(900, 460)
+    _create_fruit_at(450, 350)
+    _create_fruit_at(750, 320)
+    _create_fruit_at(1100, 380)
+    _create_fruit_at(600, 260)
+    _create_fruit_at(950, 250)
+    _create_fruit_at(1300, 300)
+    _create_fruit_at(750, 190)
+    _create_fruit_at(1100, 170)
+    _create_fruit_at(1450, 220)
+    _create_fruit_at(900, 110)
+    _create_fruit_at(1200, 80)
+    _create_fruit_at(1550, 130)
+    _create_fruit_at(1050, 30)
+    _create_fruit_at(1350, 10)
 
 func _create_goal():
     var area = Area2D.new()
-    area.position = Vector2(570, 10)
+    area.position = Vector2(1700, 50)
     var collision = CollisionShape2D.new()
     var shape = RectangleShape2D.new()
     shape.size = Vector2(60, 80)
@@ -419,11 +438,11 @@ func _on_goal_body_entered(body):
         get_tree().reload_current_scene()
 
 func _create_clouds():
-    for i in 12:
+    for i in 20:
         var cloud = Node2D.new()
         cloud.set_script(preload("res://cloud.gd"))
         add_child(cloud)
-        cloud.position.y = -(i * 280)
+        cloud.position = Vector2(randi() % LEVEL_W, -(randi() % LEVEL_H))
 
 func _create_hud():
     hud = preload("res://hud.gd").new()
