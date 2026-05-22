@@ -3,8 +3,8 @@ extends Node2D
 const SCREEN_W = 1280
 const SCREEN_H = 720
 const GROUND_Y = 650
-const LEVEL_W = 3000
-const LEVEL_H = 3500
+const LEVEL_W = 4000
+const LEVEL_H = 4000
 
 var player = null
 var hud = null
@@ -23,28 +23,44 @@ var levels = [
 
 	{
 		"start": Vector2(80, 580),
-		"goal": Vector2(1700, 50),
-		"goal_label": "META",
+		"goal": Vector2(700, 30),
+		"goal_label": "DONKEY",
 		"platforms": [
-			[150, 590, 140], [400, 540, 130], [650, 570, 130],
-			[250, 490, 110], [550, 440, 140], [850, 490, 130],
-			[400, 380, 120], [700, 350, 140], [1050, 410, 130],
-			[550, 290, 120], [900, 280, 140], [1250, 330, 120],
-			[700, 220, 110], [1050, 200, 130], [1400, 250, 120],
-			[850, 140, 110], [1150, 110, 130], [1500, 160, 120],
-			[1000, 60, 120], [1300, 40, 110], [1600, 70, 100]
+			[200, 590, 140],
+			[420, 550, 130],
+			[280, 500, 110],
+			[520, 460, 140],
+			[350, 410, 110],
+			[630, 370, 130],
+			[480, 320, 100],
+			[740, 280, 130],
+			[580, 230, 90],
+			[800, 190, 110],
+			[650, 140, 80],
+			[850, 100, 100],
+			[700, 60, 80]
 		],
 		"enemies": [
-			[250, 570], [650, 550], [550, 420], [850, 470],
-			[700, 330], [1050, 390], [900, 260], [1250, 310],
-			[1050, 180], [1400, 230], [1150, 90]
+			[420, 530],
+			[520, 440],
+			[630, 350],
+			[740, 260],
+			[800, 170],
+			[850, 80]
 		],
 		"fruits": [
-			[200, 560], [450, 510], [700, 540], [300, 460],
-			[600, 410], [900, 460], [450, 350], [750, 320],
-			[1100, 380], [600, 260], [950, 250], [1300, 300],
-			[750, 190], [1100, 170], [1450, 220], [900, 110],
-			[1200, 80], [1550, 130], [1050, 30], [1350, 10]
+			[250, 560],
+			[470, 520],
+			[330, 470],
+			[570, 430],
+			[400, 380],
+			[680, 340],
+			[530, 290],
+			[790, 250],
+			[630, 200],
+			[850, 160],
+			[700, 110],
+			[900, 70]
 		]
 	},
 	{
@@ -273,16 +289,15 @@ func _on_start_pressed():
 func _create_ground():
 	var ground = StaticBody2D.new()
 	ground.name = "Ground"
-	ground.position = Vector2(0, GROUND_Y)
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
-	shape.size = Vector2(LEVEL_W + 400, 40)
+	shape.size = Vector2(700, 40)
 	collision.shape = shape
-	collision.position = Vector2((LEVEL_W + 400) / 2, 20)
+	collision.position = Vector2(350, 20)
 	ground.add_child(collision)
 	var sand = ColorRect.new()
 	sand.color = Color(0.76, 0.60, 0.42)
-	sand.size = Vector2(LEVEL_W + 400, 40)
+	sand.size = Vector2(700, 40)
 	sand.position = Vector2(0, 0)
 	ground.add_child(sand)
 	add_child(ground)
