@@ -437,6 +437,9 @@ func _on_death_continue():
 		player.respawn(death_pos)
 	var ds = get_node_or_null("DeathScreen")
 	if ds:
+		for c in ds.get_children():
+			if c is CanvasItem:
+				c.visible = false
 		ds.queue_free()
 
 func _on_death_restart():
@@ -469,6 +472,9 @@ func _on_death_restart():
 
 	var ds = get_node_or_null("DeathScreen")
 	if ds:
+		for c in ds.get_children():
+			if c is CanvasItem:
+				c.visible = false
 		ds.queue_free()
 
 	_create_start_screen()
